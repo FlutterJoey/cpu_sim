@@ -1,0 +1,2 @@
+LDI r1  4 // Set register 1 as 4
+ADD r1  r1  r2 // Add the value of register 1 with register 1 and put it in register 2

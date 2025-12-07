@@ -1,0 +1,5 @@
+INC r1 // Increment register 1 by 1
+INC r1 // Increment register 1 by 1
+INC r1 // Increment register 1 by 1
+DEC r1 // Decrement register 1 by 1
+// If register 1 started at 0, it is now 2

@@ -1,0 +1,19 @@
+.start      NOP
+            LDI r1 0
+            CAL .add1
+            CAL .add1
+            CAL .add1
+            CAL .add1
+            LDI r2 5
+            CAL .inca
+.end        HLT
+.add1       ADI r1 1
+            RET
+.inca       LDI r3 0
+            LDI r4 0
+.incalp     INC r3
+            SUB r1 r3 r0
+            BRH zero .retinca
+            ADD r4 r2 r4
+            JMP .incalp
+.retinca    RET

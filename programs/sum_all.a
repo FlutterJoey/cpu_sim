@@ -1,0 +1,34 @@
+// Starting values
+LDI r1  3 // 1s
+LDI r2  3 // 2s
+LDI r3  2 // 3s
+LDI r4  2 // 4s
+// initialize counters with all 1s
+ADD r1 r0 r5 // the sum
+// Sum 2s
+LDI r10 0
+NOP
+INC r10
+SUB r2 r10 r0
+BRH zero 16
+ADI r5 2
+JMP 10
+// Sum 3s
+LDI r10 0
+NOP
+INC r10
+SUB r3 r10 r0
+BRH zero 24
+ADI r5 3
+JMP 18
+// Sum 4s
+LDI r10 0
+NOP
+INC r10
+SUB r4 r10 r0
+BRH zero 33
+ADI r5 4
+JMP 26
+// finish
+ADI r6 10
+HLT
