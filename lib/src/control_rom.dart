@@ -13,6 +13,8 @@ class ControlRomOutput {
   final Bit shouldBranch;
   final Bit useStack;
   final Bit stackPopMode;
+  final Bit dataMemoryEnabled;
+  final Bit dataMemoryReadMode;
 
   const ControlRomOutput({
     required this.enableRegisters,
@@ -26,6 +28,8 @@ class ControlRomOutput {
     this.shouldBranch = Bit.off,
     this.useStack = Bit.off,
     this.stackPopMode = Bit.off,
+    this.dataMemoryReadMode = Bit.off,
+    this.dataMemoryEnabled = Bit.off,
   });
 
   const ControlRomOutput.noOp()
@@ -39,14 +43,16 @@ class ControlRomOutput {
       shouldJump = Bit.off,
       shouldBranch = Bit.off,
       useStack = Bit.off,
-      stackPopMode = Bit.off;
+      stackPopMode = Bit.off,
+      dataMemoryEnabled = Bit.off,
+      dataMemoryReadMode = Bit.off;
 }
 
 enum OpCode {
   nop("NOP", 0, (Bit.off, Bit.off, Bit.off, Bit.off)),
   hlt("HLT", 0, (Bit.off, Bit.off, Bit.off, Bit.on)),
   add("ADD", 3, (Bit.off, Bit.off, Bit.on, Bit.off)),
-  subtract("SUB", 3, (Bit.off, Bit.off, Bit.on, Bit.on)),
+  sub("SUB", 3, (Bit.off, Bit.off, Bit.on, Bit.on)),
   nor("NOR", 3, (Bit.off, Bit.on, Bit.off, Bit.off)),
   and("AND", 3, (Bit.off, Bit.on, Bit.off, Bit.on)),
   xor("XOR", 3, (Bit.off, Bit.on, Bit.on, Bit.off)),
@@ -56,7 +62,9 @@ enum OpCode {
   jmp("JMP", 1, (Bit.on, Bit.off, Bit.on, Bit.off)),
   brh("BRH", 2, (Bit.on, Bit.off, Bit.on, Bit.on)),
   cal("CAL", 1, (Bit.on, Bit.on, Bit.off, Bit.off)),
-  ret("RET", 0, (Bit.on, Bit.on, Bit.off, Bit.on));
+  ret("RET", 0, (Bit.on, Bit.on, Bit.off, Bit.on)),
+  lod("LOD", 3, (Bit.on, Bit.on, Bit.on, Bit.off)),
+  str("STR", 3, (Bit.on, Bit.on, Bit.on, Bit.on));
 
   const OpCode(
     this.mnemonic,
@@ -152,7 +160,7 @@ class ControlRom {
           aluOperation: AluOperations.noop.operation,
           shouldBranch: Bit.on,
         ),
-      /// CAL Call and add to stack
+      // CAL Call and add to stack
       (Bit(value: 1), Bit(value: 1), Bit(value: 0), Bit(value: 0)) =>
         ControlRomOutput(
           enableRegisters: Bit.off,
@@ -161,7 +169,7 @@ class ControlRom {
           useStack: Bit.on,
           stackPopMode: Bit.off,
         ),
-      /// RET Return to previous point of call
+      // RET Return to previous point of call
       (Bit(value: 1), Bit(value: 1), Bit(value: 0), Bit(value: 1)) =>
         ControlRomOutput(
           enableRegisters: Bit.off,
@@ -169,10 +177,22 @@ class ControlRom {
           useStack: Bit.on,
           stackPopMode: Bit.on,
         ),
+      // LOD Load from data memory
       (Bit(value: 1), Bit(value: 1), Bit(value: 1), Bit(value: 0)) =>
-        ControlRomOutput.noOp(), // 0xE
+        ControlRomOutput(
+          enableRegisters: Bit.on,
+          aluOperation: AluOperations.add.operation,
+          dataMemoryEnabled: Bit.on,
+          dataMemoryReadMode: Bit.on,
+        ),
+      // STR Store into data memory
       (Bit(value: 1), Bit(value: 1), Bit(value: 1), Bit(value: 1)) =>
-        ControlRomOutput.noOp(), // 0xF
+        ControlRomOutput(
+          enableRegisters: Bit.on,
+          aluOperation: AluOperations.add.operation,
+          dataMemoryEnabled: Bit.on,
+          dataMemoryReadMode: Bit.off,
+        ),
       // NOP
       (Bit(value: 0), Bit(value: 0), Bit(value: 0), Bit(value: 0)) ||
       _ => ControlRomOutput.noOp(),

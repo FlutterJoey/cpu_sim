@@ -1,0 +1,7 @@
+LOD r1 r2
+LOD r1 r3 1
+STR r2 r2 
+STR r3 r3
+LOD r2 r4
+LOD r3 r5
+HLT

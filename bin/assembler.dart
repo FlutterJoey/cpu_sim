@@ -157,6 +157,12 @@ final List<Alias> aliases = [
       return (OpCode.adi, [parameters.first, "255"]);
     },
   ),
+  Alias(mnemonic: "LOD", toOperation: (parameters) {
+    return (OpCode.lod, [parameters[0], parameters[1], parameters.elementAtOrNull(2) ?? "0"]);
+  }),
+    Alias(mnemonic: "STR", toOperation: (parameters) {
+    return (OpCode.str, [parameters[0], parameters[1], parameters.elementAtOrNull(2) ?? "0"]);
+  }),
 ];
 
 Alias? getAlias(String opCode) {
@@ -207,6 +213,31 @@ enum JumpFlag {
 
   static String get names =>
       [zero.name, notzero.name, carry.name, notcarry.name].join(", ");
+}
+
+class DataInstruction extends Instruction {
+  final int register1Address;
+  final int register2Address;
+  final int offset;
+
+  DataInstruction({
+    required super.opCode,
+    required super.instructionNumber,
+    required this.register1Address,
+    required this.register2Address,
+    required this.offset,
+  });
+  
+  @override
+  List<Bit> getInstructionBits() {
+var (firstBit, secondBit, thirdBit, fourthBit) = opCode.binary;
+    return [
+      ...[firstBit, secondBit, thirdBit, fourthBit],
+      ...registerToBytes(register1Address),
+      ...registerToBytes(register2Address),
+      ...registerToBytes(offset),
+    ];
+  }
 }
 
 class JumpInstruction extends Instruction {
@@ -275,7 +306,7 @@ abstract class Instruction {
       case OpCode.nop:
       case OpCode.hlt:
       case OpCode.add:
-      case OpCode.subtract:
+      case OpCode.sub:
       case OpCode.nor:
       case OpCode.and:
       case OpCode.xor:
@@ -295,6 +326,15 @@ abstract class Instruction {
       case OpCode.cal:
       case OpCode.ret:
         return JumpInstruction.fromArgs(instructionNumber, opCode, args);
+      case OpCode.lod:
+      case OpCode.str:
+        return DataInstruction(
+          instructionNumber: instructionNumber,
+          opCode: opCode,
+          register1Address: args._parseArgumentAsInt(0),
+          register2Address: args._parseArgumentAsInt(1),
+          offset: args._parseArgumentAsInt(2),
+        );
     }
   }
 

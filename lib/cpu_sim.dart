@@ -1,9 +1,11 @@
 import 'package:cpu_sim/src/alu.dart';
 import 'package:cpu_sim/src/bit.dart';
 import 'package:cpu_sim/src/bit_operators.dart';
+import 'package:cpu_sim/src/byte.dart';
 import 'package:cpu_sim/src/call_stack.dart';
 import 'package:cpu_sim/src/clock.dart';
 import 'package:cpu_sim/src/control_rom.dart';
+import 'package:cpu_sim/src/data_memory.dart';
 import 'package:cpu_sim/src/instruction_memory.dart';
 import 'package:cpu_sim/src/mux.dart';
 import 'package:cpu_sim/src/program_counter.dart';
@@ -18,6 +20,7 @@ class CPUSim {
   final InstructionMemory instructionMemory = InstructionMemory();
   final CallStack callStack = CallStack();
   final ProgramCounter programCounter = ProgramCounter();
+  final DataMemory dataMemory = DataMemory();
   late final Clock clock = Clock(tick);
 
   Future<void> start() async {
@@ -39,6 +42,8 @@ class CPUSim {
     var (partA, partB) = input;
     var opCode = partA.leftNibble;
 
+    var thirdParamAsByte = partB.rightNibble.asByte();
+
     var branchCondition = (partA.bits[4], partA.bits[5]);
 
     var jumpAddress = (
@@ -57,26 +62,53 @@ class CPUSim {
     var controlRomOutput = controlRom.getOutput(opCode);
 
     registers.setEnable(controlRomOutput.enableRegisters);
+    dataMemory.setEnabled(controlRomOutput.dataMemoryEnabled);
+    dataMemory.setMode(controlRomOutput.dataMemoryReadMode);
 
     registers.setReadA(partA.rightNibble);
 
     registers.setReadB(partB.leftNibble);
 
+    Bit loadFromData = and(
+      controlRomOutput.dataMemoryEnabled,
+      controlRomOutput.dataMemoryReadMode,
+    );
+
     registers.setWrite(
-      muxNibble(partB.rightNibble, partA.rightNibble, controlRomOutput.destMux),
+      muxNibble(
+        muxNibble(
+          partB.rightNibble,
+          partA.rightNibble,
+          controlRomOutput.destMux,
+        ),
+        partB.leftNibble,
+        loadFromData,
+      ),
     );
 
     alu.setByteA(registers.readA);
 
     alu.setByteB(
-      muxByte(registers.readB, partB, controlRomOutput.immediateBMux),
+      muxByte(
+        muxByte(registers.readB, partB, controlRomOutput.immediateBMux),
+        thirdParamAsByte,
+        controlRomOutput.dataMemoryEnabled,
+      ),
     );
+
+    dataMemory.setData(registers.readB);
 
     alu.setOperation(controlRomOutput.aluOperation);
 
     var aluOutput = alu.getOutput(controlRomOutput.shouldSetFlags);
 
-    var byteToWrite = muxByte(aluOutput, partB, controlRomOutput.dataMux);
+    dataMemory.setAddress(aluOutput);
+
+    var byteToWrite = muxByte(
+      muxByte(aluOutput, partB, controlRomOutput.dataMux),
+      dataMemory.read(),
+      loadFromData,
+    );
 
     registers.setInput(byteToWrite);
 
@@ -107,8 +139,18 @@ class CPUSim {
     callStack.setInput(programCounter.incrementAddress);
 
     clock.setActive(controlRomOutput.shouldHaltClock.not());
+    dataMemory.clock();
     registers.clock();
     programCounter.clock();
     callStack.clock();
+  }
+}
+
+extension on Nibble {
+  Byte asByte() {
+    return Byte.fromList([
+      Bit.off, Bit.off, Bit.off, Bit.off, //
+      $1, $2, $3, $4, //
+    ]);
   }
 }
