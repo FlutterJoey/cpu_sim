@@ -31,7 +31,7 @@ class DataMemory {
 
   Byte read() {
     var shouldRead = and(_enabled, _readMode);
-    var address = muxByte(_address, Byte.fromValue(0), shouldRead);
+    var address = muxByte(_address, Byte.fromValue(0), shouldRead.not());
     return memory[address]!.read();
   }
 
@@ -60,5 +60,10 @@ class StorageAttachment extends MemoryAttachment {
   @override
   void write(Byte write) {
     value = write;
+  }
+
+  @override
+  String toString() {
+    return value.value.toString();
   }
 }

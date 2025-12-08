@@ -81,7 +81,7 @@ class CPUSim {
           partA.rightNibble,
           controlRomOutput.destMux,
         ),
-        partB.rightNibble.andWithBit(controlRomOutput.dataMemoryReadMode),
+        partB.leftNibble.andWithBit(controlRomOutput.dataMemoryReadMode),
         controlRomOutput.dataMemoryEnabled,
       ),
     );
