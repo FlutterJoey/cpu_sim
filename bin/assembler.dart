@@ -184,6 +184,15 @@ final List<Alias> aliases = [
       );
     },
   ),
+  Alias(mnemonic: "RSH", toOperation: (parameters) {
+    return (
+      OpCode.rsh,
+      switch(parameters) {
+        [String r1, String r2] => [r1, "r0", r2],
+        _ => parameters,
+      }
+    );
+  })
 ];
 
 Alias? getAlias(String opCode) {
