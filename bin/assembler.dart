@@ -157,12 +157,33 @@ final List<Alias> aliases = [
       return (OpCode.adi, [parameters.first, "255"]);
     },
   ),
-  Alias(mnemonic: "LOD", toOperation: (parameters) {
-    return (OpCode.lod, [parameters[0], parameters[1], parameters.elementAtOrNull(2) ?? "0"]);
-  }),
-    Alias(mnemonic: "STR", toOperation: (parameters) {
-    return (OpCode.str, [parameters[0], parameters[1], parameters.elementAtOrNull(2) ?? "0"]);
-  }),
+  Alias(
+    mnemonic: "LOD",
+    toOperation: (parameters) {
+      return (
+        OpCode.lod,
+        [parameters[0], parameters[1], parameters.elementAtOrNull(2) ?? "0"],
+      );
+    },
+  ),
+  Alias(
+    mnemonic: "STR",
+    toOperation: (parameters) {
+      return (
+        OpCode.str,
+        [parameters[0], parameters[1], parameters.elementAtOrNull(2) ?? "0"],
+      );
+    },
+  ),
+  Alias(
+    mnemonic: "MOV",
+    toOperation: (parameters) {
+      return (
+        OpCode.add,
+        [parameters[0], "r0", parameters[1]],
+      );
+    },
+  ),
 ];
 
 Alias? getAlias(String opCode) {
@@ -201,10 +222,10 @@ class RegisterInstruction extends Instruction {
 }
 
 enum JumpFlag {
-  zero([Bit.on, Bit.off]),
-  notzero([Bit.on, Bit.off]),
-  carry([Bit.off, Bit.on]),
-  notcarry([Bit.off, Bit.off]),
+  zero([Bit.off, Bit.off]),
+  notzero([Bit.off, Bit.off]),
+  carry([Bit.on, Bit.on]),
+  notcarry([Bit.on, Bit.off]),
   none([Bit.off, Bit.off]);
 
   const JumpFlag(this.bits);
@@ -227,10 +248,10 @@ class DataInstruction extends Instruction {
     required this.register2Address,
     required this.offset,
   });
-  
+
   @override
   List<Bit> getInstructionBits() {
-var (firstBit, secondBit, thirdBit, fourthBit) = opCode.binary;
+    var (firstBit, secondBit, thirdBit, fourthBit) = opCode.binary;
     return [
       ...[firstBit, secondBit, thirdBit, fourthBit],
       ...registerToBytes(register1Address),

@@ -1,0 +1,18 @@
+            LDI r1 0
+            LDI r2 10
+.loop       NOP
+            SUB r2 r1 r0
+            BRH zero .end
+            ADD r1 r0 r5
+            CAL .printi
+            INC r1
+            JMP .loop
+.end        HLT
+.printi     NOP // Prints whatever number that is in register 5. Uses registers 6, 7, 8
+            LDI r6 254
+            ADD r5 r0 r8
+            ADI r8 48
+            STR r6 r8 1
+            LDI r7 2
+            STR r6 r7 0
+            RET

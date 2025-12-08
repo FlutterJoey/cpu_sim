@@ -1,0 +1,21 @@
+            LDI r1 72   // H
+            LDI r2 101  // e
+            LDI r3 108  // l
+            LDI r4 111  // o
+            LDI r5 119  // w
+            LDI r6 114  // r
+            LDI r7 100  // d
+            LDI r8 254  // printer
+            STR r8 r1 1
+            STR r8 r2 1
+            STR r8 r3 1
+            STR r8 r3 1
+            STR r8 r4 1
+            STR r8 r5 1
+            STR r8 r4 1
+            STR r8 r6 1
+            STR r8 r3 1
+            STR r8 r7 1
+            LDI r9 2    // Write to printer command
+            STR r8 r9 0
+            HLT

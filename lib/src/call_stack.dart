@@ -14,7 +14,7 @@ class CallStack {
     _enabled = enabled;
   }
 
-  Bit _pushPopMode = Bit.off;
+  Bit _pushPopMode = .off;
   void setMode(Bit pushPopMode) {
     _pushPopMode = pushPopMode;
   }
@@ -25,7 +25,7 @@ class CallStack {
   }
 
   InstructionAddress getOutput() {
-    return _stack[Byte.all(Bit.off)]!;
+    return _stack[Byte.all(.off)]!;
   }
 
   void clock() {

@@ -1,8 +1,10 @@
 import 'package:cpu_sim/src/bit.dart';
+import 'package:cpu_sim/src/bit_operators.dart';
 import 'package:cpu_sim/src/byte.dart';
 import 'package:cpu_sim/src/byte_operators.dart';
 
 class BitRegister {
+
   Bit _currentValue = Bit.off;
 
   Bit _in = Bit.off;
@@ -21,9 +23,15 @@ class BitRegister {
 }
 
 class ByteRegister {
+  ByteRegister({
+    this.save = Bit.on,
+  });
+
+  final Bit save;
+
   final List<BitRegister> _bitRegisters = List.generate(
     Byte.length,
-    (_) => BitRegister(),
+    (index) => BitRegister(),
     growable: false,
   );
 
@@ -35,7 +43,7 @@ class ByteRegister {
 
   void setIn(Byte byte) {
     for (var index = 0; index < Byte.length; index++) {
-      _bitRegisters[index].setIn(byte[index]);
+      _bitRegisters[index].setIn(and(byte[index], save));
     }
   }
 
@@ -48,7 +56,7 @@ class ByteRegister {
 
 class Registers {
   Map<Nibble, ByteRegister> registers = {
-    (Bit.off, Bit.off, Bit.off, Bit.off): ByteRegister(), // 0x0
+    (Bit.off, Bit.off, Bit.off, Bit.off): ByteRegister(save: Bit.off), // 0x0
     (Bit.off, Bit.off, Bit.off, Bit.on): ByteRegister(), // 0x1
     (Bit.off, Bit.off, Bit.on, Bit.off): ByteRegister(), // 0x2
     (Bit.off, Bit.off, Bit.on, Bit.on): ByteRegister(), // 0x3

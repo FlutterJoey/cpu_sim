@@ -1,11 +1,11 @@
-LDI r1 0
-LDI r2 5
-LDI r4 4
-LDI r5 0
-.loop NOP
-INC r1
-SUB r2 r1 r0
-BRH zero .end
-ADD r5 r4 r5
-JMP .loop
-.end HLT
+        LDI r1 0
+        LDI r2 5
+        LDI r4 4
+        LDI r5 0
+.loop   NOP
+        INC r1
+        SUB r2 r1 r0
+        BRH zero .end
+        ADD r5 r4 r5
+        JMP .loop
+.end    HLT

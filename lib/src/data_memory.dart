@@ -5,8 +5,8 @@ import 'package:cpu_sim/src/byte_operators.dart';
 import 'package:cpu_sim/src/mux.dart';
 
 class DataMemory {
-  Map<Byte, Byte> memory = {
-    for (int i = 0; i < 256; i++) Byte.fromValue(i): Byte.fromValue(0),
+  Map<Byte, MemoryAttachment> memory = {
+    for (int i = 0; i < 256; i++) Byte.fromValue(i): StorageAttachment(),
   };
 
   Bit _enabled = Bit.off;
@@ -31,11 +31,34 @@ class DataMemory {
 
   Byte read() {
     var shouldRead = and(_enabled, _readMode);
-    return andByte(memory[_address]!, Byte.all(shouldRead));
+    var address = muxByte(_address, Byte.fromValue(0), shouldRead);
+    return memory[address]!.read();
   }
 
   void clock() {
     var shouldWrite = and(_enabled, _readMode.not());
-    memory[_address] = muxByte(memory[_address]!, _data, shouldWrite);
+    var address = andByte(_address, Byte.all(shouldWrite));
+    memory[address]!.write(_data);
+  }
+
+  void attach(Byte address, MemoryAttachment attachMent) {
+    memory[address] = attachMent;
+  }
+}
+
+abstract class MemoryAttachment {
+  Byte read();
+  void write(Byte write);
+}
+
+class StorageAttachment extends MemoryAttachment {
+  Byte value = Byte.fromValue(0);
+
+  @override
+  Byte read() => value;
+
+  @override
+  void write(Byte write) {
+    value = write;
   }
 }

@@ -1,5 +1,6 @@
 import 'package:cpu_sim/cpu_sim.dart';
 import 'package:cpu_sim/src/byte.dart';
+import 'package:cpu_sim/src/printer.dart';
 
 import '../build/program.dart' as program;
 
@@ -11,11 +12,14 @@ void main(List<String> arguments) async {
       Byte.fromList(instruction.sublist(8, 16)),
     );
   }).toList();
+
+  final printer = Printer(memory: cpu.dataMemory);
   
   cpu.loadProgram(instructions);
   
   await cpu.start();
 
+  printer.clearBuffer();
   print("Final memory dump:\n ${cpu.prettyRegisters()}");
 }
 
