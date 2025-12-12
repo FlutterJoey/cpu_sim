@@ -1,6 +1,8 @@
 import 'package:cpu_sim/cpu_sim.dart';
 import 'package:cpu_sim/src/byte.dart';
+import 'package:cpu_sim/src/keyboard_input.dart';
 import 'package:cpu_sim/src/printer.dart';
+import 'package:cpu_sim/src/random.dart';
 
 import '../build/program.dart' as program;
 
@@ -14,12 +16,16 @@ void main(List<String> arguments) async {
   }).toList();
 
   final printer = Printer(memory: cpu.dataMemory);
+  final KeyboardInput keyboardInput = KeyboardInput(memory: cpu.dataMemory);
+
+  cpu.dataMemory.attach(Byte.fromValue(0xFD), RandomAttachment());
   
   cpu.loadProgram(instructions);
   
   await cpu.start();
 
   printer.clearBuffer();
+  keyboardInput.dispose();
   print("Final memory dump:\n ${cpu.prettyRegisters()}");
 }
 

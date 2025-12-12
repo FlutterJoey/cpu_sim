@@ -116,7 +116,7 @@ class CPUSim {
 
     var relatedFlag = muxBit(flags.$1, flags.$2, branchCondition.$1);
     var branchTriggered = and(
-      xor(relatedFlag, branchCondition.$2),
+      xor(relatedFlag, branchCondition.$2.not()),
       controlRomOutput.shouldBranch,
     );
 
